@@ -16,16 +16,18 @@ import {
 import {
   Flame,
   BookOpen,
-  Share2,
   Lock,
   Star,
-  Zap,
   Trophy,
   Linkedin,
   TrendingUp,
   CheckCircle,
   GraduationCap,
   Target,
+  Search,
+  Dumbbell,
+  Shield,
+  Crown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
@@ -114,10 +116,29 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onNavigate }) => {
   const achievements = useMemo(() => {
     const list = [
       {
+        id: 'first_course',
+        name: 'Course Champion',
+        description: 'Complete your first course',
+        icon: Trophy,
+        color: '#FFDE59',
+        locked: completedCourses.length < 1,
+        dateEarned: completedCourses.length >= 1 ? new Date() : undefined,
+      },
+      {
+        id: 'skill_evaluator',
+        name: 'Skill Evaluator',
+        description: 'Run your first skill gap analysis',
+        icon: Search,
+        color: '#5CE1E6',
+        locked: skills.length < 1,
+        dateEarned: skills.length >= 1 ? new Date() : undefined,
+      },
+      {
         id: 'first_lesson',
         name: 'First Step',
         description: 'Complete your first lesson',
-        icon: '🎯',
+        icon: Target,
+        color: '#FF914D',
         locked: totalLessonsCompleted < 1,
         dateEarned: totalLessonsCompleted >= 1 ? new Date() : undefined,
       },
@@ -125,39 +146,26 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onNavigate }) => {
         id: 'five_lessons',
         name: 'Getting Started',
         description: 'Complete 5 lessons',
-        icon: '📚',
+        icon: BookOpen,
+        color: '#FF66C4',
         locked: totalLessonsCompleted < 5,
         dateEarned: totalLessonsCompleted >= 5 ? new Date() : undefined,
-      },
-      {
-        id: 'first_course',
-        name: 'Course Champion',
-        description: 'Complete your first course',
-        icon: '🏆',
-        locked: completedCourses.length < 1,
-        dateEarned: completedCourses.length >= 1 ? new Date() : undefined,
       },
       {
         id: 'three_courses',
         name: 'Stacked Learner',
         description: 'Complete 3 courses',
-        icon: '🎓',
+        icon: GraduationCap,
+        color: '#CB6CE6',
         locked: completedCourses.length < 3,
         dateEarned: completedCourses.length >= 3 ? new Date() : undefined,
-      },
-      {
-        id: 'skill_evaluator',
-        name: 'Skill Evaluator',
-        description: 'Run your first skill gap analysis',
-        icon: '🔍',
-        locked: skills.length < 1,
-        dateEarned: skills.length >= 1 ? new Date() : undefined,
       },
       {
         id: 'strong_skills',
         name: 'Solid Foundation',
         description: 'Have 3 strong skills',
-        icon: '💪',
+        icon: Dumbbell,
+        color: '#00BF63',
         locked: strongSkills.length < 3,
         dateEarned: strongSkills.length >= 3 ? new Date() : undefined,
       },
@@ -165,7 +173,8 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onNavigate }) => {
         id: 'xp_500',
         name: 'Level Up!',
         description: 'Reach 500 XP',
-        icon: '⚡',
+        icon: Shield,
+        color: '#FFDE59',
         locked: xp < 500,
         dateEarned: xp >= 500 ? new Date() : undefined,
       },
@@ -173,7 +182,8 @@ export const ProgressPage: React.FC<ProgressPageProps> = ({ onNavigate }) => {
         id: 'xp_1000',
         name: 'Power User',
         description: 'Reach 1000 XP',
-        icon: '🌟',
+        icon: Crown,
+        color: '#FF914D',
         locked: xp < 1000,
         dateEarned: xp >= 1000 ? new Date() : undefined,
       },
@@ -337,48 +347,98 @@ Lessons: ${totalLessonsCompleted} ✅ | Skills: ${skills.length} 🧠
       </MatrixCard>
 
       {/* Achievements Grid */}
-      <MatrixCard className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-slate-900">Achievements</h3>
-          <span className="text-sm text-slate-400 bg-slate-100 px-3 py-1 rounded-none">
-            {unlockedCount} / {achievements.length}
-          </span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {achievements.map((achievement) => (
-            <div
-              key={achievement.id}
-              onClick={() => handleAchievementClick(achievement)}
-              className={cn(
-                'p-4 rounded-none border text-center transition-all cursor-pointer',
-                achievement.locked
-                  ? 'bg-slate-50 border-slate-200 opacity-50'
-                  : 'bg-gradient-to-b from-emerald-50 to-white border-emerald-200 hover:shadow-md hover:border-emerald-300 hover:-translate-y-0.5'
-              )}
+      <div className="mb-8">
+        <div
+          className="bg-white border-[3px] border-black p-6"
+          style={{ boxShadow: '5px 5px 0 #000' }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-black text-lg uppercase tracking-wider">Achievements</h3>
+            <span
+              className="bg-brutal-yellow border-[2.5px] border-black px-3 py-1 text-xs font-black"
+              style={{ boxShadow: '2px 2px 0 #000' }}
             >
-              <div className="relative w-16 h-16 mx-auto mb-3">
-                <div className="text-4xl leading-none flex items-center justify-center w-full h-full">
-                  {achievement.icon}
-                </div>
-                {achievement.locked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-none">
-                    <Lock className="w-5 h-5 text-slate-400" />
+              {unlockedCount} / {achievements.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {achievements.map((achievement) => {
+              const Icon = achievement.icon;
+              return (
+                <div
+                  key={achievement.id}
+                  onClick={() => handleAchievementClick(achievement)}
+                  className={cn(
+                    'relative p-5 text-center transition-all cursor-pointer border-[3px] border-black overflow-hidden',
+                    achievement.locked
+                      ? 'bg-gray-100 hover:bg-gray-50'
+                      : 'hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
+                  )}
+                  style={{
+                    boxShadow: achievement.locked ? '3px 3px 0 #d1d5db' : '4px 4px 0 #000',
+                    backgroundColor: achievement.locked ? undefined : achievement.color + '20',
+                  }}
+                >
+                  {/* Icon badge */}
+                  <div
+                    className={cn(
+                      'w-14 h-14 mx-auto mb-3 border-[2.5px] border-black flex items-center justify-center',
+                      achievement.locked ? 'bg-gray-200' : ''
+                    )}
+                    style={{
+                      backgroundColor: achievement.locked ? undefined : achievement.color,
+                      boxShadow: achievement.locked ? 'none' : '2px 2px 0 #000',
+                    }}
+                  >
+                    {achievement.locked ? (
+                      <Lock className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <Icon className="w-6 h-6 text-black" />
+                    )}
                   </div>
-                )}
-              </div>
-              <h4 className={cn('font-semibold mb-1 text-sm', achievement.locked ? 'text-slate-400' : 'text-slate-900')}>
-                {achievement.name}
-              </h4>
-              <p className="text-slate-500 text-xs leading-snug">{achievement.description}</p>
-              {!achievement.locked && (
-                <p className="text-emerald-500 text-xs mt-2 font-medium flex items-center justify-center gap-1">
-                  <CheckCircle className="w-3 h-3" /> Unlocked
-                </p>
-              )}
-            </div>
-          ))}
+
+                  <h4
+                    className={cn(
+                      'font-black text-xs uppercase tracking-wider mb-1',
+                      achievement.locked ? 'text-gray-400' : 'text-black'
+                    )}
+                  >
+                    {achievement.name}
+                  </h4>
+                  <p
+                    className={cn(
+                      'text-[11px] font-medium leading-snug',
+                      achievement.locked ? 'text-gray-400' : 'text-black/60'
+                    )}
+                  >
+                    {achievement.description}
+                  </p>
+
+                  {!achievement.locked && (
+                    <div
+                      className="mt-2 inline-flex items-center gap-1 bg-black text-white px-2 py-0.5 text-[10px] font-black uppercase"
+                    >
+                      <CheckCircle className="w-3 h-3" />
+                      Unlocked
+                    </div>
+                  )}
+
+                  {/* Diagonal stripes for locked */}
+                  {achievement.locked && (
+                    <div
+                      className="absolute inset-0 pointer-events-none opacity-[0.06]"
+                      style={{
+                        backgroundImage:
+                          'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 8px)',
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </MatrixCard>
+      </div>
 
       {/* LinkedIn Share */}
       <MatrixCard>

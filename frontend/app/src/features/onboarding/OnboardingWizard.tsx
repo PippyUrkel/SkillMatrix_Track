@@ -3,6 +3,7 @@ import { useOnboardingStore } from '@/stores';
 import { useUserStore } from '@/stores/userStore';
 import { StepIndicator } from './StepIndicator';
 import { ProfileSetupStep } from './ProfileSetupStep';
+import { InterestStep } from './InterestStep';
 import { PathSelectionStep } from './PathSelectionStep';
 import { QuizStep } from './QuizStep';
 import { PreferencesStep } from './PreferencesStep';
@@ -21,13 +22,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
     selectedPath,
     assessmentComplete,
     analysisResult,
+    riasecScores,
     saveProfileToBackend,
   } = useOnboardingStore();
 
   const { updateUser } = useUserStore();
   const [isSaving, setIsSaving] = useState(false);
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const canProceed = () => {
     switch (currentStep) {
@@ -35,10 +37,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
         // Must have analyzed GitHub or uploaded resume
         return githubConnected || analysisResult !== null;
       case 2:
-        return selectedPath !== '';
+        // Must have completed RIASEC questionnaire
+        return riasecScores !== null;
       case 3:
-        return assessmentComplete;
+        return selectedPath !== '';
       case 4:
+        return assessmentComplete;
+      case 5:
         return true;
       default:
         return true;
@@ -77,11 +82,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
       return (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="relative mb-8">
-            <div className="w-20 h-20 border-4 border-emerald-100 border-t-emerald-500 rounded-none animate-spin" />
-            <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-emerald-500" />
+            <div className="w-20 h-20 border-4 border-brutal-yellow/30 border-t-brutal-yellow rounded-none animate-spin" />
+            <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-black" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-2">Setting up your profile...</h3>
-          <p className="text-slate-500">Saving your skills and preferences</p>
+          <h3 className="text-2xl font-black text-black uppercase mb-2">Setting up your profile...</h3>
+          <p className="text-black/60 font-medium">Saving your skills, interests, and preferences</p>
         </div>
       );
     }
@@ -90,28 +95,30 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
       case 1:
         return <ProfileSetupStep />;
       case 2:
-        return <PathSelectionStep />;
+        return <InterestStep />;
       case 3:
-        return <QuizStep />;
+        return <PathSelectionStep />;
       case 4:
+        return <QuizStep />;
+      case 5:
         return <PreferencesStep />;
       default:
         return null;
     }
   };
 
-  const stepLabels = ['Profile Setup', 'Choose Path', 'Knowledge Quiz', 'Preferences'];
+  const stepLabels = ['Profile Setup', 'Interests', 'Choose Path', 'Knowledge Quiz', 'Preferences'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 py-8 px-4">
+    <div className="min-h-screen bg-white py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-500 rounded-none shadow-lg shadow-emerald-200 mb-4">
-            <Sparkles className="w-6 h-6 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-brutal-yellow border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-4">
+            <Sparkles className="w-6 h-6 text-black" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Let's set up your profile</h1>
-          <p className="text-slate-500 mt-1">This helps us create a personalized learning experience</p>
+          <h1 className="text-2xl font-black text-black uppercase">Let's set up your profile</h1>
+          <p className="text-black/60 mt-1 font-medium">This helps us create a personalized learning experience</p>
         </div>
 
         {/* Step Indicator */}
@@ -122,7 +129,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
         />
 
         {/* Step Content */}
-        <div className="mt-8 bg-white rounded-none shadow-sm border border-slate-200 p-8">
+        <div className="mt-8 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-8">
           {renderStep()}
         </div>
 

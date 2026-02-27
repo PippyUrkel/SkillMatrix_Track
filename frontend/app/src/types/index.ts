@@ -17,6 +17,16 @@ export interface User {
   linkedInPostsShared?: number;
 }
 
+// RIASEC Interest Profile Types
+export interface RiasecScores {
+  R: number; // Realistic
+  I: number; // Investigative
+  A: number; // Artistic
+  S: number; // Social
+  E: number; // Enterprising
+  C: number; // Conventional
+}
+
 // Onboarding Types
 export interface OnboardingState {
   currentStep: number;
@@ -29,6 +39,7 @@ export interface OnboardingState {
   voiceGuided: boolean;
   language: string;
   autoPostLinkedIn: boolean;
+  riasecScores: RiasecScores | null;
 }
 
 // Career Path Types
@@ -104,14 +115,15 @@ export interface Job {
   title: string;
   company: string;
   location: string;
-  type: 'remote' | 'onsite' | 'hybrid';
+  type: string;
   description: string;
   fitScore: number;
   matchedSkills: string[];
   missingSkills: string[];
   experienceLevel: string;
-  source: 'linkedin' | 'indeed' | 'glassdoor';
+  source: string;
   saved: boolean;
+  url?: string;
 }
 
 // AI Helper Types
@@ -170,4 +182,60 @@ export interface Notification {
   type: 'info' | 'success' | 'warning';
   read: boolean;
   timestamp: Date;
+}
+
+// Community Types
+export interface CommunityGroup {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  memberCount: number;
+  joined: boolean;
+}
+
+export interface ProgressSnapshot {
+  roadmap: string;
+  percentComplete: number;
+  currentNode: string;
+  timeSpentHours: number;
+  anonymous: boolean;
+}
+
+export interface CommunityPost {
+  id: string;
+  groupSlug: string;
+  authorId: string;
+  authorName: string;
+  title: string;
+  body: string;
+  tags: string[];
+  upvotes: number;
+  voted: boolean;
+  commentCount: number;
+  isPinned: boolean;
+  progressSnapshot?: ProgressSnapshot;
+  createdAt: string;
+}
+
+export interface CommunityComment {
+  id: string;
+  postId: string;
+  parentId?: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  replies: CommunityComment[];
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  userName: string;
+  postsCount: number;
+  totalUpvotes: number;
+  commentsCount: number;
+  streak: number;
+  badge: string;
 }

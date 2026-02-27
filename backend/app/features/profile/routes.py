@@ -8,6 +8,7 @@ from app.features.profile.schemas import (
     ProfileResponse,
     ProfileUpdateRequest,
     SkillAddRequest,
+    RiasecScoresRequest,
 )
 from app.features.profile.services import ProfileService
 
@@ -74,3 +75,32 @@ async def remove_skill(
         return service.remove_skill(user["id"], skill_name)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/interests")
+async def save_interests(
+    request: RiasecScoresRequest,
+    user: dict = Depends(get_current_user),
+    service: ProfileService = Depends(get_profile_service),
+):
+    """Save RIASEC interest profile scores."""
+    try:
+        service.save_interests(user["id"], request.model_dump())
+        return {"status": "ok", "scores": request.model_dump()}
+    except Exception as e:
+        logger.error(f"Failed to save interests: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save interest profile")
+
+
+@router.get("/interests")
+async def get_interests(
+    user: dict = Depends(get_current_user),
+    service: ProfileService = Depends(get_profile_service),
+):
+    """Retrieve RIASEC interest profile scores."""
+    try:
+        scores = service.get_interests(user["id"])
+        return scores or {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
+    except Exception as e:
+        logger.error(f"Failed to get interests: {e}")
+        return {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}

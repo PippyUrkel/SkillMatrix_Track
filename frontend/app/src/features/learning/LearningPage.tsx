@@ -7,6 +7,7 @@ import { MatrixBadge } from '@/components/ui/MatrixBadge';
 import { StreakToast } from '@/components/ui/StreakToast';
 import { useDashboardStore, useUserStore } from '@/stores';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
 import {
   Info,
   CheckCircle,
@@ -28,6 +29,9 @@ import {
   Plus,
   Loader2,
   GraduationCap,
+  ExternalLink,
+  Star,
+  DollarSign,
 } from 'lucide-react';
 import { AIHelper } from '@/features/aihelper';
 import confetti from 'canvas-confetti';
@@ -161,6 +165,141 @@ const GenerateModal: React.FC<{
   );
 };
 
+// ─── Paid Courses Grid ────────────────────────────────────────────────────────
+interface PaidCourse {
+  title: string;
+  platform: string;
+  description: string;
+  estimated_price: string;
+  url: string;
+  difficulty: string;
+  estimated_duration: string;
+  rating: number;
+}
+
+const PLATFORM_STYLES: Record<string, { bg: string; border: string }> = {
+  Coursera: { bg: 'bg-blue-500', border: 'border-blue-500' },
+  Udemy: { bg: 'bg-purple-600', border: 'border-purple-600' },
+  edX: { bg: 'bg-red-500', border: 'border-red-500' },
+};
+
+const PaidCoursesGrid: React.FC<{ targetRole: string }> = ({ targetRole }) => {
+  const [courses, setCourses] = useState<PaidCourse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [topic, setTopic] = useState(targetRole || '');
+
+  const handleGenerate = async () => {
+    if (!topic.trim()) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await api.post<{ courses: PaidCourse[] }>('/api/courses/paid', {
+        topic: topic.trim(),
+        skill_level: 'beginner',
+        max_results: 6,
+      });
+      setCourses(res.courses || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate recommendations');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Search bar */}
+      <div className="flex gap-3">
+        <input
+          type="text"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="e.g. Machine Learning, System Design…"
+          className="flex-1 border-2 border-black rounded-none px-4 py-3 text-black font-medium focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(255,222,89,1)] transition-all"
+          onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+        />
+        <MatrixButton onClick={handleGenerate} disabled={isLoading || !topic.trim()}>
+          {isLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Finding…</> : <><Sparkles className="w-4 h-4 mr-2" />Find Courses</>}
+        </MatrixButton>
+      </div>
+
+      {error && (
+        <div className="border-2 border-red-500 bg-red-50 p-4 text-red-700 font-medium text-sm">{error}</div>
+      )}
+
+      {/* Results */}
+      {courses.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {courses.map((course, idx) => {
+            const style = PLATFORM_STYLES[course.platform] || PLATFORM_STYLES.Udemy;
+            return (
+              <div
+                key={idx}
+                className="bg-white border-2 border-black p-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all flex flex-col"
+              >
+                {/* Platform header */}
+                <div className={`${style.bg} px-4 py-2 flex items-center justify-between`}>
+                  <span className="text-white font-black text-xs uppercase tracking-wider">{course.platform}</span>
+                  <span className="text-white/80 text-xs font-bold flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-current" />{course.rating.toFixed(1)}
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col">
+                  <h3 className="font-black text-black text-sm mb-2 line-clamp-2">{course.title}</h3>
+                  <p className="text-black/60 text-xs mb-4 line-clamp-2 flex-1">{course.description}</p>
+
+                  <div className="flex items-center gap-3 text-xs text-black/50 font-bold mb-4">
+                    <span className="flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" />{course.estimated_price}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />{course.estimated_duration}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      'text-[10px] px-2 py-0.5 border border-black font-bold uppercase',
+                      course.difficulty === 'beginner' && 'bg-green-100 text-green-800',
+                      course.difficulty === 'intermediate' && 'bg-yellow-100 text-yellow-800',
+                      course.difficulty === 'advanced' && 'bg-red-100 text-red-800',
+                    )}>
+                      {course.difficulty}
+                    </span>
+                    <div className="flex-1" />
+                    <a
+                      href={course.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-black text-white text-xs font-black uppercase hover:bg-brutal-yellow hover:text-black border-2 border-black transition-all"
+                    >
+                      View Course <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : !isLoading && (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-20 h-20 bg-brutal-purple border-2 border-black rounded-none flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <DollarSign className="w-10 h-10 text-black" />
+          </div>
+          <h3 className="text-xl font-black text-black uppercase mb-2">Paid Course Finder</h3>
+          <p className="text-black/60 mb-6 max-w-sm font-medium">Search for premium courses from Coursera, Udemy, and edX tailored to your learning goals.</p>
+          <MatrixButton onClick={handleGenerate} disabled={!topic.trim()}>
+            <Sparkles className="w-4 h-4 mr-2" />Find Paid Courses
+          </MatrixButton>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Main LearningPage ─────────────────────────────────────────────────────────
 export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
   const {
@@ -176,6 +315,7 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
     toggleSidebar,
     generateCurriculum,
     isLoadingCurriculum,
+    setActiveVideoUrl,
   } = useDashboardStore();
 
   const { addXP, user } = useUserStore();
@@ -183,6 +323,7 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
   // ── View state ────────────────────────────────
   const [view, setView] = useState<'library' | 'player'>('library');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [libraryTab, setLibraryTab] = useState<'free' | 'paid'>('free');
   const [loadingCourseId, setLoadingCourseId] = useState<string | null>(null);
 
   // ── Player state ──────────────────────────────
@@ -261,6 +402,11 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
     return null;
   };
 
+  // Keep the active video URL synced to the global store for the AI Helper
+  useEffect(() => {
+    setActiveVideoUrl(getActiveVideoUrl());
+  }, [selectedLessonUrl, activeCourse, setActiveVideoUrl]);
+
   // ── Lesson navigation ─────────────────────────
   const allLessons = activeCourse ? activeCourse.modules.flatMap((m) => m.lessons) : [];
   const currentLessonIndex = selectedLessonId ? allLessons.findIndex((l) => l.id === selectedLessonId) : -1;
@@ -334,13 +480,44 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
   if (view === 'library') {
     return (
       <DashboardLayout activeItem="learning" onNavigate={onNavigate} title="Learning Path">
-        <CourseLibrary
-          courses={courses}
-          onSelectCourse={handleSelectCourse}
-          onGenerate={() => setShowGenerateModal(true)}
-          isGenerating={isLoadingCurriculum}
-          isLoading={!!loadingCourseId}
-        />
+        {/* Free / Paid Tab Toggle */}
+        <div className="flex items-center gap-0 mb-6 border-2 border-black inline-flex">
+          <button
+            onClick={() => setLibraryTab('free')}
+            className={cn(
+              'px-6 py-2.5 font-black text-sm uppercase tracking-wider transition-all border-r-2 border-black',
+              libraryTab === 'free'
+                ? 'bg-brutal-yellow text-black shadow-[inset_0_-3px_0_0_rgba(0,0,0,0.15)]'
+                : 'bg-white text-black/50 hover:bg-gray-50'
+            )}
+          >
+            🎓 Free Courses
+          </button>
+          <button
+            onClick={() => setLibraryTab('paid')}
+            className={cn(
+              'px-6 py-2.5 font-black text-sm uppercase tracking-wider transition-all',
+              libraryTab === 'paid'
+                ? 'bg-brutal-purple text-black shadow-[inset_0_-3px_0_0_rgba(0,0,0,0.15)]'
+                : 'bg-white text-black/50 hover:bg-gray-50'
+            )}
+          >
+            💎 Paid Courses
+          </button>
+        </div>
+
+        {libraryTab === 'free' ? (
+          <CourseLibrary
+            courses={courses}
+            onSelectCourse={handleSelectCourse}
+            onGenerate={() => setShowGenerateModal(true)}
+            isGenerating={isLoadingCurriculum}
+            isLoading={!!loadingCourseId}
+          />
+        ) : (
+          <PaidCoursesGrid targetRole={user?.targetRole || ''} />
+        )}
+
         {showGenerateModal && (
           <GenerateModal
             defaultTopic={user?.targetRole || ''}

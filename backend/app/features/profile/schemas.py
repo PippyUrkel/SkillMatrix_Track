@@ -24,3 +24,12 @@ class ProfileUpdateRequest(BaseModel):
 class SkillAddRequest(BaseModel):
     skill_name: str = Field(..., min_length=1, description="Name of the skill to add")
     proficiency_level: str | None = Field(default=None, description="e.g., beginner, intermediate, advanced")
+
+
+class RiasecScoresRequest(BaseModel):
+    R: int = Field(..., ge=0, le=100, description="Realistic score (0-100)")
+    I: int = Field(..., ge=0, le=100, description="Investigative score (0-100)")
+    A: int = Field(..., ge=0, le=100, description="Artistic score (0-100)")
+    S: int = Field(..., ge=0, le=100, description="Social score (0-100)")
+    E: int = Field(..., ge=0, le=100, description="Enterprising score (0-100)")
+    C: int = Field(..., ge=0, le=100, description="Conventional score (0-100)")

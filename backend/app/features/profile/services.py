@@ -1,4 +1,5 @@
 import logging
+import json
 import time
 from appwrite.client import Client
 from appwrite.services.databases import Databases
@@ -166,3 +167,32 @@ class ProfileService:
         except Exception as e:
             logger.error(f"Error removing skill: {e}")
             raise ValueError("Failed to remove skill")
+
+    # ─── RIASEC Interest Profile ──────────────────────────────────────────
+
+    def save_interests(self, user_id: str, scores: dict) -> None:
+        """Save RIASEC scores as a JSON string in the profile document."""
+        try:
+            self._ensure_profile(user_id)
+            self.databases.update_document(
+                database_id=self.db_id,
+                collection_id=self.profiles_coll,
+                document_id=user_id,
+                data={"riasec_scores": json.dumps(scores)},
+            )
+            _profile_cache.pop(user_id, None)
+        except Exception as e:
+            logger.error(f"Error saving RIASEC interests: {e}")
+            raise
+
+    def get_interests(self, user_id: str) -> dict | None:
+        """Retrieve RIASEC scores from the profile document."""
+        try:
+            profile = self._ensure_profile(user_id)
+            raw = profile.get("riasec_scores")
+            if raw:
+                return json.loads(raw)
+            return None
+        except Exception as e:
+            logger.error(f"Error getting RIASEC interests: {e}")
+            return None

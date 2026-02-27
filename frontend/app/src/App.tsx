@@ -7,6 +7,7 @@ import { SkillGapPage } from '@/features/skillgap';
 import { LearningPage } from '@/features/learning';
 import { JobsPage } from '@/features/jobs';
 import { ProgressPage } from '@/features/progress';
+import { CommunityPage } from '@/features/community';
 import { SettingsPage } from '@/features/settings';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useUserStore } from '@/stores/userStore';
@@ -24,6 +25,7 @@ type Page =
   | 'skill-gap'
   | 'learning'
   | 'jobs'
+  | 'community'
   | 'ai-helper'
   | 'progress'
   | 'settings';
@@ -105,6 +107,8 @@ function App() {
         return <LearningPage onNavigate={navigate} />;
       case 'jobs':
         return <JobsPage onNavigate={navigate} />;
+      case 'community':
+        return <CommunityPage onNavigate={navigate} />;
       case 'ai-helper':
         return <DashboardPage onNavigate={navigate} />;
       case 'progress':

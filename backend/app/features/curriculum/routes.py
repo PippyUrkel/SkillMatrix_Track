@@ -9,6 +9,7 @@ from app.features.curriculum.schemas import (
     SavedCurriculumDetail,
     ProgressUpdateRequest,
     ModuleItem,
+    TranscriptResponse,
 )
 from app.features.curriculum.services import CurriculumService
 from app.features.curriculum import persistence
@@ -155,3 +156,26 @@ async def update_curriculum_progress(
     if not updated:
         raise HTTPException(status_code=404, detail="Curriculum not found")
     return {"ok": True}
+
+
+@router.get("/transcript", response_model=TranscriptResponse)
+async def get_video_transcript(youtube_url: str):
+    """Fetch the English transcript of a YouTube video."""
+    import re
+    from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+
+    video_id = None
+    # Support regular and short YouTube URLs
+    match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", youtube_url)
+    if match:
+        video_id = match.group(1)
+    
+    if not video_id:
+        raise HTTPException(status_code=400, detail="Invalid YouTube URL - couldn't extract video ID")
+
+    try:
+        transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
+        full_text = " ".join([t['text'] for t in transcript_list]).replace('\n', ' ')
+        return TranscriptResponse(url=youtube_url, transcript=full_text)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Transcript unavailable: {str(e)}")

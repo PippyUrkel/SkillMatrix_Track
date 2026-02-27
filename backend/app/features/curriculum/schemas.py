@@ -108,3 +108,9 @@ class ProgressUpdateRequest(BaseModel):
         ...,
         description="Full list of completed lesson IDs for this curriculum",
     )
+
+
+class TranscriptResponse(BaseModel):
+    """Response containing the extracted YouTube transcript."""
+    url: str
+    transcript: str

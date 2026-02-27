@@ -152,6 +152,7 @@ export const useUserStore = create<UserStore>((set) => ({
 
   logout: () => {
     clearAuthToken();
+    localStorage.removeItem('onboarding_complete');
     set({ user: null, isAuthenticated: false });
   },
 

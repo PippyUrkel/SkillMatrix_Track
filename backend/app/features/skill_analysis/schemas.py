@@ -36,8 +36,8 @@ class GitHubAnalysisRequest(BaseModel):
 class ResumeAnalysisRequest(BaseModel):
     resume_text: str = Field(
         ...,
-        min_length=50,
-        max_length=20000,
+        min_length=10,
+        max_length=50000,
         description="Plain-text resume content",
     )
     target_role: str = Field(

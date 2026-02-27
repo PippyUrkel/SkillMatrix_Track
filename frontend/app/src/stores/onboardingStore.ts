@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { OnboardingState } from '@/types';
+import type { OnboardingState, RiasecScores } from '@/types';
 import { api } from '@/lib/api';
 
 // Shape from backend /api/skills/analyze/github and /api/skills/analyze/resume
@@ -33,6 +33,7 @@ interface OnboardingStore extends OnboardingState {
   setSelectedPath: (path: string) => void;
   setAssessmentAnswer: (questionIndex: number, answer: number) => void;
   setAssessmentComplete: (complete: boolean) => void;
+  setRiasecScores: (scores: RiasecScores) => void;
   toggleVoiceGuided: () => void;
   setLanguage: (lang: string) => void;
   toggleAutoPostLinkedIn: () => void;
@@ -51,6 +52,7 @@ const initialState: OnboardingState = {
   voiceGuided: false,
   language: 'English',
   autoPostLinkedIn: false,
+  riasecScores: null,
 };
 
 export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
@@ -111,6 +113,8 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
 
   setAssessmentComplete: (complete) => set({ assessmentComplete: complete }),
 
+  setRiasecScores: (scores) => set({ riasecScores: scores }),
+
   toggleVoiceGuided: () => set((state) => ({ voiceGuided: !state.voiceGuided })),
 
   setLanguage: (lang) => set({ language: lang }),
@@ -133,6 +137,16 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
             skill_name: skill.name,
             proficiency_level: skill.level,
           });
+        }
+      }
+
+      // Save RIASEC interest scores
+      if (state.riasecScores) {
+        try {
+          await api.post('/api/profile/interests', state.riasecScores);
+        } catch {
+          // Non-critical — scores are still in local store
+          console.warn('Failed to save RIASEC scores to backend');
         }
       }
     } catch (error) {

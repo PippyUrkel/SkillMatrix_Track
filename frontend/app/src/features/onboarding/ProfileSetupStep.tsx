@@ -3,6 +3,7 @@ import { useOnboardingStore } from '@/stores';
 import { Github, Linkedin, Upload, FileText, Check, X, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MatrixButton } from '@/components/ui/MatrixButton';
+import { extractTextFromPDF } from '@/lib/pdfExtract';
 
 export const ProfileSetupStep: React.FC = () => {
   const {
@@ -30,15 +31,19 @@ export const ProfileSetupStep: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setResume(file);
-      // Read file text and analyze
       try {
-        const text = await file.text();
-        if (text.length >= 50) {
+        let text: string;
+        if (file.name.toLowerCase().endsWith('.pdf')) {
+          text = await extractTextFromPDF(file);
+        } else {
+          text = await file.text();
+        }
+        if (text.trim().length >= 10) {
           await analyzeResume(text, targetRole);
           setResumeAnalyzed(true);
         }
-      } catch {
-        // Analysis failed — file is stored, user can proceed manually
+      } catch (err) {
+        console.error('Resume analysis failed:', err);
       }
     }
   };

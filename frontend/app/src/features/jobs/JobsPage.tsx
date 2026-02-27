@@ -24,7 +24,8 @@ interface JobsPageProps {
 }
 
 export const JobsPage: React.FC<JobsPageProps> = ({ onNavigate }) => {
-  const { jobs, savedJobs, saveJob, unsaveJob } = useDashboardStore();
+  const { jobs, savedJobs, saveJob, unsaveJob, fetchJobs, isLoadingJobs } = useDashboardStore();
+  const { skills, fetchSkills } = useDashboardStore();
   const { user } = useUserStore();
   const [selectedJob, setSelectedJob] = useState<Job | null>(jobs[0] || null);
   const [activeTab, setActiveTab] = useState<'all' | 'saved'>('all');
@@ -45,6 +46,24 @@ export const JobsPage: React.FC<JobsPageProps> = ({ onNavigate }) => {
       setSelectedJob(jobs[0]);
     }
   }, [jobs, selectedJob]);
+
+  // Auto-fetch jobs on mount if we have skills but no jobs
+  React.useEffect(() => {
+    if (jobs.length === 0 && !isLoadingJobs) {
+      // First make sure we have skills loaded
+      if (skills.length === 0) {
+        fetchSkills().then(() => {
+          const currentSkills = useDashboardStore.getState().skills;
+          if (currentSkills.length > 0) {
+            fetchJobs(currentSkills.map(s => s.name));
+          }
+        });
+      } else {
+        fetchJobs(skills.map(s => s.name));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredJobs = jobs.filter((job) => {
     if (activeTab === 'saved' && !savedJobs.includes(job.id)) return false;
@@ -81,6 +100,28 @@ I would welcome the opportunity to discuss how my background and skills would be
 Best regards,
 ${userName}`;
   };
+
+  // Loading state
+  if (isLoadingJobs) {
+    return (
+      <DashboardLayout activeItem="jobs" onNavigate={onNavigate} title="Job Matching">
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center max-w-lg mx-auto">
+          <div className="w-20 h-20 bg-emerald-100 rounded-none flex items-center justify-center mb-6 animate-pulse">
+            <Briefcase className="w-10 h-10 text-emerald-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">Finding Jobs...</h2>
+          <p className="text-slate-500 mb-6">
+            Searching real job listings that match your skills. This may take a moment.
+          </p>
+          <div className="flex gap-2">
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   // Empty state when no jobs
   if (jobs.length === 0) {
@@ -402,7 +443,7 @@ ${userName}`;
 
               <MatrixButton
                 className="w-full"
-                onClick={() => window.open(`https://linkedin.com/jobs`, '_blank')}
+                onClick={() => window.open(selectedJob.url || `https://linkedin.com/jobs`, '_blank')}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Submit Application

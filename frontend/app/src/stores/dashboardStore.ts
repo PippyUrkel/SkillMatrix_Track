@@ -8,6 +8,7 @@ interface DashboardStore {
   isLoadingSkills: boolean;
   isLoadingCurriculum: boolean;
   isLoadingChat: boolean;
+  isLoadingJobs: boolean;
 
   // Skills
   skills: Skill[];
@@ -16,6 +17,7 @@ interface DashboardStore {
   // Courses
   courses: Course[];
   activeCourse: Course | null;
+  activeVideoUrl: string | null;
 
   // Jobs
   jobs: Job[];
@@ -43,9 +45,11 @@ interface DashboardStore {
   fetchSavedCurricula: () => Promise<void>;
   fetchCourseDetail: (courseId: string) => Promise<Course | null>;
   evaluateGaps: (targetRole: string) => Promise<void>;
+  fetchJobs: (skills?: string[]) => Promise<void>;
   generateCurriculum: (topic: string, constraints: any) => Promise<void>;
   sendChatMessage: (content: string) => Promise<void>;
   setActiveCourse: (course: Course | null) => void;
+  setActiveVideoUrl: (url: string | null) => void;
   updateCourseProgress: (courseId: string, progress: number) => void;
   markLessonComplete: (courseId: string, lessonId: string) => void;
   completeCourse: (courseId: string) => void;
@@ -62,10 +66,12 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   isLoadingSkills: false,
   isLoadingCurriculum: false,
   isLoadingChat: false,
+  isLoadingJobs: false,
   skills: [],
   skillCategories: [],
   courses: [],
   activeCourse: null,
+  activeVideoUrl: null,
   jobs: [],
   savedJobs: [],
   chatMessages: [
@@ -242,38 +248,51 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         currentScore: e.current,
         requiredScore: e.required,
       }));
-      const allSkillNames = [...strongList, ...weakList];
 
-      const jobTemplates = [
-        { title: `${targetRole}`, company: 'Tech Corp', location: 'Remote', type: 'remote' as const },
-        { title: `Junior ${targetRole}`, company: 'StartupHub', location: 'San Francisco, CA', type: 'hybrid' as const },
-        { title: `Senior ${targetRole}`, company: 'Enterprise Ltd', location: 'New York, NY', type: 'onsite' as const },
-        { title: `${targetRole} Lead`, company: 'InnovateTech', location: 'Austin, TX', type: 'remote' as const },
-        { title: `${targetRole} Intern`, company: 'GrowthCo', location: 'Remote', type: 'remote' as const },
-      ];
+      set({ skills: evaluatedSkills, skillCategories: categories, isLoadingSkills: false });
 
-      const synthesizedJobs: Job[] = jobTemplates.map((tmpl, i) => {
-        const fitScore = Math.max(40, Math.min(98, 60 + strongList.length * 5 - weakList.length * 3 - i * 5));
-        return {
-          id: `synth-job-${i}`,
-          title: tmpl.title,
-          company: tmpl.company,
-          location: tmpl.location,
-          type: tmpl.type,
-          description: `Looking for a skilled ${targetRole} with experience in ${allSkillNames.slice(0, 3).join(', ')}. This role offers growth opportunities and competitive compensation.`,
-          fitScore,
-          matchedSkills: strongList.slice(0, Math.min(4, strongList.length)),
-          missingSkills: weakList.slice(0, Math.min(3, weakList.length)),
-          experienceLevel: i <= 1 ? 'Junior' : i === 2 ? 'Senior' : 'Mid',
-          source: (['linkedin', 'indeed', 'glassdoor'] as const)[i % 3],
-          saved: false,
-        };
-      });
-
-      set({ skills: evaluatedSkills, skillCategories: categories, jobs: synthesizedJobs, isLoadingSkills: false });
+      // Fetch real job listings based on user skills
+      const allSkillNames = [...strongList, ...weakList, ...get().skills.map(s => s.name)];
+      const uniqueSkills = [...new Set(allSkillNames)];
+      get().fetchJobs(uniqueSkills);
     } catch (error) {
       set({ isLoadingSkills: false });
       console.error('Failed to evaluate gaps:', error);
+    }
+  },
+
+  fetchJobs: async (skills?: string[]) => {
+    set({ isLoadingJobs: true });
+    try {
+      // Use provided skills or fall back to profile skills
+      const userSkills = skills ?? get().skills.map(s => s.name);
+      if (userSkills.length === 0) {
+        set({ isLoadingJobs: false });
+        return;
+      }
+
+      const response = await api.post<any[]>('/api/jobs/search', { skills: userSkills });
+
+      const mappedJobs: Job[] = (response || []).map((j: any) => ({
+        id: j.id,
+        title: j.title,
+        company: j.company,
+        location: j.location,
+        type: j.type || 'onsite',
+        description: j.description,
+        fitScore: j.fitScore,
+        matchedSkills: j.matchedSkills || [],
+        missingSkills: j.missingSkills || [],
+        experienceLevel: j.experienceLevel || 'Mid',
+        source: j.source || 'arbeitnow',
+        saved: false,
+        url: j.url || '',
+      }));
+
+      set({ jobs: mappedJobs, isLoadingJobs: false });
+    } catch (error) {
+      set({ isLoadingJobs: false });
+      console.error('Failed to fetch jobs:', error);
     }
   },
 
@@ -383,6 +402,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   },
 
   setActiveCourse: (course) => set({ activeCourse: course }),
+  setActiveVideoUrl: (url) => set({ activeVideoUrl: url }),
 
   updateCourseProgress: (courseId, progress) =>
     set((state) => ({
