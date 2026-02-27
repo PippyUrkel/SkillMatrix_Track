@@ -33,29 +33,34 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative floating blocks */}
+      <div className="absolute top-16 right-[12%] w-20 h-20 bg-brutal-pink border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-12 hidden lg:block" />
+      <div className="absolute bottom-24 left-[8%] w-16 h-16 bg-brutal-blue border-4 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] -rotate-6 hidden lg:block" />
+      <div className="absolute top-[30%] left-[5%] w-12 h-12 bg-brutal-orange border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-45 hidden lg:block" />
+
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500 rounded-none shadow-lg shadow-emerald-200 mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-brutal-yellow border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-4">
+            <Sparkles className="w-8 h-8 text-black" strokeWidth={3} />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">SkillMatrix</h1>
-          <p className="text-slate-500">AI-powered career guidance</p>
+          <h1 className="text-3xl font-black text-black mb-2 tracking-tight">SkillMatrix</h1>
+          <p className="text-black/60 font-bold">AI-powered career guidance</p>
         </div>
 
         <MatrixCard>
-          <h2 className="text-xl font-semibold text-slate-900 mb-1">
+          <h2 className="text-xl font-black text-black mb-1 uppercase">
             {isLogin ? 'Welcome back' : 'Create your account'}
           </h2>
-          <p className="text-slate-500 text-sm mb-6">
+          <p className="text-black/50 text-sm font-medium mb-6">
             {isLogin ? 'Sign in to continue your learning journey' : 'Start your personalized career path'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-black text-black mb-2 uppercase tracking-wide">
                   Full Name
                 </label>
                 <input
@@ -63,41 +68,41 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full pl-4 pr-4 py-3 bg-white border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+                  className="w-full pl-4 pr-4 py-3 bg-white border-2 border-black text-black placeholder:text-black/30 focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(255,222,89,1)] transition-all font-medium"
                   required
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-black text-black mb-2 uppercase tracking-wide">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black/40" strokeWidth={2.5} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-white border-2 border-black text-black placeholder:text-black/30 focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(255,222,89,1)] transition-all font-medium"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-black text-black mb-2 uppercase tracking-wide">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black/40" strokeWidth={2.5} />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-white border-2 border-black text-black placeholder:text-black/30 focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(255,222,89,1)] transition-all font-medium"
                   required
                 />
               </div>
@@ -109,38 +114,38 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               loading={isLoading}
             >
               {isLogin ? 'Sign In' : 'Create Account'}
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <ArrowRight className="w-4 h-4 ml-2" strokeWidth={3} />
             </MatrixButton>
           </form>
 
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
+              <div className="w-full border-t-2 border-black"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-slate-500">Or continue with</span>
+              <span className="px-3 bg-white text-black/60 font-bold uppercase text-xs tracking-wider">Or continue with</span>
             </div>
           </div>
 
           {/* Social Login */}
           <div className="grid grid-cols-2 gap-3">
-            <button className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-200 rounded-none hover:bg-slate-50 transition-colors">
-              <Github className="w-5 h-5 text-slate-700" />
-              <span className="text-sm font-medium text-slate-700">GitHub</span>
+            <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-black bg-white hover:bg-brutal-yellow shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+              <Github className="w-5 h-5 text-black" strokeWidth={2.5} />
+              <span className="text-sm font-black text-black">GitHub</span>
             </button>
-            <button className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-200 rounded-none hover:bg-slate-50 transition-colors">
-              <Linkedin className="w-5 h-5 text-[#0077B5]" />
-              <span className="text-sm font-medium text-slate-700">LinkedIn</span>
+            <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-black bg-white hover:bg-brutal-blue shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+              <Linkedin className="w-5 h-5 text-black" strokeWidth={2.5} />
+              <span className="text-sm font-black text-black">LinkedIn</span>
             </button>
           </div>
 
           {/* Toggle */}
-          <p className="text-center text-sm text-slate-500 mt-6">
+          <p className="text-center text-sm text-black/60 font-medium mt-6">
             {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="text-emerald-600 font-medium hover:text-emerald-700"
+              className="text-black font-black hover:bg-brutal-blue px-2 py-0.5 border-2 border-transparent hover:border-black transition-all"
             >
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>
@@ -148,7 +153,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         </MatrixCard>
 
         {/* Footer */}
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-xs text-black/40 font-bold mt-6">
           By continuing, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>

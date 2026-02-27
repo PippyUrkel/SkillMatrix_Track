@@ -58,8 +58,8 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                         <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-emerald-300 rounded-none" />
                         <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-emerald-300 rounded-none" />
 
-                        <div className="w-14 h-14 bg-brutal-yellow border-2 border-black rounded-none flex items-center justify-center mx-auto mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-                            <img src="/logo.png" alt="SkillMatrix Logo" className="w-full h-full object-cover" />
+                        <div className="w-14 h-14 bg-emerald-500 rounded-none flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+                            <span className="text-white font-bold text-xl">S</span>
                         </div>
 
                         <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mb-2">Certificate of Completion</p>

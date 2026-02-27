@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     # LLM
     ollama_model: str = "alibayram/smollm3"
 
+    # Federated Learning
+    fl_enabled: bool = True
+    fl_model_path: str = ""  # defaults to backend/fl_global_model.joblib if empty
+
     # CORS
     cors_origins: str = "http://localhost:3000,http://localhost:3001,http://localhost:5173"
 

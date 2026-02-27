@@ -1,7 +1,3 @@
-# ─── GSD Methodology ───
-.gsd/
-get-shit-done-for-antigravity/
-
 # ─── Dependencies ───
 node_modules/
 .pnp
@@ -34,10 +30,13 @@ build_log.txt
 *.swp
 *.swo
 *~
+
+# ─── OS ───
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# ─── Python ───
+# ─── Python / Backend ───
 __pycache__/
 *.py[cod]
 *.pyo
@@ -46,16 +45,25 @@ venv/
 .Python
 *.egg-info/
 *.egg
+backend/.venv/
 
-#next related
+# ─── FL Model Files ───
+*.pth
+*.joblib
+fl_global_model.joblib
+pretrained_transformer.pth
+
+# ─── GSD Methodology ───
 .gsd/
-frontend/app/build_log.txt
+get-shit-done-for-antigravity/
+
+# ─── Asynchronus FL (original — code moved to backend/app/features/fl_engine/) ───
+Asynchronus FL/
+
+# ─── Frontend-specific ───
 frontend/app/dist/
 frontend/app/node_modules/
-get-shit-done-for-antigravity/
-# ─── OS ───
-.DS_Store
-Desktop.ini
+frontend/app/build_log.txt
 
 # ─── Misc ───
 *.local
@@ -63,3 +71,4 @@ Desktop.ini
 .eslintcache
 temp/
 .cache/
+package-lock.json

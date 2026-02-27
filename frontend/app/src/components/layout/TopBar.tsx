@@ -28,22 +28,22 @@ export const TopBar: React.FC<TopBarProps> = ({ title, className, onNavigate }) 
   return (
     <header
       className={cn(
-        'h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6',
+        'h-16 bg-white border-b-4 border-black flex items-center justify-between px-6',
         className
       )}
     >
       {/* Page Title */}
-      <h1 className="text-slate-900 font-semibold text-lg">{title}</h1>
+      <h1 className="text-black font-black text-lg uppercase tracking-wider">{title}</h1>
 
       {/* Right Section */}
       <div className="flex items-center gap-3">
         {/* Search */}
         <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" strokeWidth={3} />
           <input
             type="text"
             placeholder="Search..."
-            className="bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-none pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all"
+            className="bg-white border-2 border-black text-black text-sm pl-10 pr-4 py-2 w-64 focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(255,222,89,1)] transition-all font-medium"
           />
         </div>
 
@@ -57,11 +57,11 @@ export const TopBar: React.FC<TopBarProps> = ({ title, className, onNavigate }) 
         <div className="relative">
           <button
             onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); }}
-            className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-none transition-colors"
+            className="relative p-2 text-black/60 hover:text-black hover:bg-brutal-yellow border-2 border-transparent hover:border-black transition-all"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-5 h-5" strokeWidth={2.5} />
             {notifications > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-none flex items-center justify-center">
+              <span className="absolute top-0 right-0 w-5 h-5 bg-brutal-pink text-black text-xs font-black border-2 border-black flex items-center justify-center">
                 {notifications}
               </span>
             )}
@@ -76,9 +76,9 @@ export const TopBar: React.FC<TopBarProps> = ({ title, className, onNavigate }) 
         <div className="relative">
           <button
             onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); }}
-            className="w-9 h-9 rounded-none bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center hover:ring-2 hover:ring-emerald-200 transition-all cursor-pointer"
+            className="w-9 h-9 bg-brutal-pink border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
           >
-            <span className="text-white font-bold text-xs">
+            <span className="text-black font-black text-xs">
               {user ? getInitials(user.fullName) : 'U'}
             </span>
           </button>

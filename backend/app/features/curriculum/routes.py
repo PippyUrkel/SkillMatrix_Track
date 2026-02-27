@@ -8,9 +8,12 @@ from app.features.curriculum.schemas import (
     SavedCurriculumSummary,
     SavedCurriculumDetail,
     ProgressUpdateRequest,
+    ModuleItem,
 )
 from app.features.curriculum.services import CurriculumService
 from app.features.curriculum import persistence
+from app.features.fl_engine.schemas import TestSubmission
+from app.features.fl_engine.orchestrator import get_orchestrator
 from app.middleware.auth_middleware import get_current_user
 
 router = APIRouter(prefix="/api/curriculum", tags=["curriculum"])
@@ -51,6 +54,59 @@ async def generate_curriculum(
             logging.getLogger(__name__).warning("Failed to save curriculum: %s", save_err)
 
     return result
+
+
+@router.post("/adapt")
+async def adapt_curriculum(body: TestSubmission):
+    """
+    Submit test answers → FL assesses comprehension → LLM adapts the module.
+
+    This is the core FL integration endpoint. The flow:
+    1. Student submits test answers for a module
+    2. FL engine assesses comprehension (weak/partial/strong)
+    3. CurriculumService asks the LLM to expand, shorten, or maintain the module
+    4. Returns the adaptation recommendation
+
+    Works like a real teacher: if the student is struggling, break the
+    module into smaller pieces. If they're excelling, advance faster.
+    """
+    try:
+        # Step 1: Run FL assessment on the test answers
+        orchestrator = get_orchestrator()
+        answers = [
+            {
+                "question": a.question,
+                "student_answer": a.student_answer,
+                "correct_answer": a.correct_answer,
+            }
+            for a in body.answers
+        ]
+        assessment = orchestrator.assess_student(answers)
+
+        # Step 2: Create a placeholder module for adaptation
+        # In a full integration, this would look up the actual module
+        module = ModuleItem(
+            module_number=1,
+            module_title=body.module_id or "Current Module",
+            learning_objective="Master the concepts covered in this assessment",
+            total_duration_minutes=60,
+            videos=[],
+        )
+
+        # Step 3: Let the LLM adapt the curriculum based on FL assessment
+        service = CurriculumService()
+        course_topic = body.curriculum_id or "General"
+        adaptation = await service.adapt_curriculum(module, assessment, course_topic)
+
+        return {
+            "assessment": assessment,
+            "adaptation": adaptation,
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Curriculum adaptation failed: {str(e)}",
+        )
 
 
 @router.get("/saved", response_model=list[SavedCurriculumSummary])

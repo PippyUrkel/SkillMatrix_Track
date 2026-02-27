@@ -12,13 +12,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
             <div className="absolute top-12 right-[8%] w-24 h-24 bg-brutal-pink border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rotate-12 z-0 hidden lg:block" />
             <div className="absolute top-[40%] right-[5%] w-16 h-16 bg-brutal-blue border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] -rotate-6 z-0 hidden lg:block" />
             <div className="absolute bottom-32 left-[6%] w-20 h-20 bg-brutal-orange border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-3 z-0 hidden lg:block" />
-            <div className="absolute top-[20%] left-[3%] w-12 h-12 bg-brutal-yellow border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-45 z-0 hidden lg:block" />
+            <div className="absolute top-[20%] left-[3%] w-12 h-12 bg-brutal-yellow border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-45 z-0 hidden lg:block" />
 
             {/* Top Nav */}
             <header className="relative z-10 border-b-4 border-black bg-white">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-none border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-yellow overflow-hidden">
+                        <div className="w-12 h-12 rounded-none border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-brutal-yellow overflow-hidden">
                             <img src="/logo.png" alt="SkillMatrix Logo" className="w-full h-full object-cover" />
                         </div>
                         <span className="text-2xl font-black text-black tracking-tight">SkillMatrix</span>
@@ -37,7 +37,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Left text block — takes 7 cols, shifted left */}
                     <div className="lg:col-span-7 lg:col-start-1">
-                        <div className="inline-block bg-brutal-yellow border-3 border-black px-4 py-2 mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -rotate-1">
+                        <div className="inline-block bg-brutal-yellow border-2 border-black px-4 py-2 mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -rotate-1">
                             <span className="font-black text-black text-sm uppercase tracking-wider">⚡ AI-Powered Career Growth</span>
                         </div>
 
@@ -64,7 +64,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                                 Get Started Free
                                 <ArrowRight className="w-6 h-6" strokeWidth={3} />
                             </button>
-                            <div className="bg-brutal-purple border-3 border-black px-5 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-1">
+                            <div className="bg-brutal-purple border-2 border-black px-5 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-1">
                                 <span className="font-black text-black text-sm">✓ No credit card required</span>
                             </div>
                         </div>
@@ -75,7 +75,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                         {/* Feature Card 1 */}
                         <div className="bg-brutal-yellow border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all -rotate-1">
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 bg-white border-3 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-shrink-0">
+                                <div className="w-14 h-14 bg-white border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-shrink-0">
                                     <Target className="w-7 h-7 text-black" strokeWidth={3} />
                                 </div>
                                 <div>
@@ -88,7 +88,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                         {/* Feature Card 2 */}
                         <div className="bg-brutal-pink border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all rotate-1">
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 bg-white border-3 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-shrink-0">
+                                <div className="w-14 h-14 bg-white border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-shrink-0">
                                     <BookOpen className="w-7 h-7 text-black" strokeWidth={3} />
                                 </div>
                                 <div>
@@ -101,7 +101,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                         {/* Feature Card 3 */}
                         <div className="bg-brutal-blue border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all -rotate-1">
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 bg-white border-3 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-shrink-0">
+                                <div className="w-14 h-14 bg-white border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-shrink-0">
                                     <BarChart3 className="w-7 h-7 text-black" strokeWidth={3} />
                                 </div>
                                 <div>
@@ -125,7 +125,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
                             { label: 'IT\'S ALL', value: 'FREE', color: 'bg-brutal-orange' },
                         ].map((stat) => (
                             <div key={stat.label} className="text-center">
-                                <div className={`inline-block ${stat.color} border-3 border-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] mb-2`}>
+                                <div className={`inline-block ${stat.color} border-2 border-black px-5 py-2 shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] mb-2`}>
                                     <span className="font-black text-black text-2xl md:text-3xl">{stat.value}</span>
                                 </div>
                                 <p className="text-white font-black text-xs uppercase tracking-widest mt-1">{stat.label}</p>
@@ -138,7 +138,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onGetStarted }) => {
             {/* How It Works — off-centered */}
             <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
                 <div className="lg:ml-[8%]">
-                    <div className="inline-block bg-brutal-orange border-3 border-black px-4 py-2 mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-1">
+                    <div className="inline-block bg-brutal-orange border-2 border-black px-4 py-2 mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rotate-1">
                         <span className="font-black text-black text-sm uppercase tracking-wider">How It Works</span>
                     </div>
 

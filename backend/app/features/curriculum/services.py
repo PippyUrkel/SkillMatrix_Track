@@ -161,6 +161,134 @@ class CurriculumService:
             modules=modules,
         )
 
+    # ── FL-powered curriculum adaptation ───────
+
+    async def adapt_curriculum(
+        self,
+        module: ModuleItem,
+        assessment: dict,
+        course_topic: str,
+    ) -> dict:
+        """
+        Adapt a curriculum module based on FL assessment results.
+
+        If the student shows weak understanding → expand the module
+        (more sub-topics, foundational content, extra explanations).
+
+        If strong understanding → shorten it
+        (condense, skip basics, advance faster).
+
+        If partial → maintain with a practice exercise added.
+        """
+        recommendation = assessment.get("recommendation", "maintain")
+        comprehension = assessment.get("comprehension_level", "partial")
+        confidence = assessment.get("confidence", 50.0)
+
+        if recommendation == "expand":
+            return await self._expand_module(module, assessment, course_topic)
+        elif recommendation == "shorten":
+            return await self._shorten_module(module, assessment, course_topic)
+        else:
+            return await self._maintain_module(module, assessment, course_topic)
+
+    async def _expand_module(
+        self, module: ModuleItem, assessment: dict, course_topic: str
+    ) -> dict:
+        """Use LLM to expand a module for a struggling student."""
+        prompt = f"""You are an expert teacher adapting course content for a struggling student.
+
+COURSE TOPIC: {course_topic}
+MODULE: {module.module_title}
+LEARNING OBJECTIVE: {module.learning_objective}
+
+STUDENT ASSESSMENT:
+- Comprehension level: WEAK ({assessment.get('confidence', 0):.0f}% confidence)
+- Weak areas: {', '.join(a['question'] for a in assessment.get('per_answer', []) if a.get('level') == 'weak')}
+
+The student is struggling with this material. Break this module into 2-3 smaller sub-modules that:
+1. Start with simpler foundational concepts
+2. Add more worked examples and analogies
+3. Build up gradually to the original objective
+4. Include practice exercises between concepts
+
+Return ONLY a valid JSON array (no markdown fences). Each element:
+{{"title": "Sub-module Title", "objective": "Specific learning objective", "approach": "How this sub-module helps the struggling student"}}
+"""
+        response = await generate_text(prompt)
+        sub_modules = self._parse_module_plan(response) if response else []
+
+        if not sub_modules:
+            sub_modules = [
+                {"title": f"{module.module_title} — Fundamentals", "objective": f"Review basic concepts needed for {module.learning_objective}"},
+                {"title": f"{module.module_title} — Deep Dive", "objective": module.learning_objective},
+                {"title": f"{module.module_title} — Practice", "objective": f"Apply and reinforce {module.learning_objective}"},
+            ]
+
+        return {
+            "action": "expand",
+            "reason": f"Student showed weak understanding ({assessment.get('confidence', 0):.0f}% confidence). Expanding module into {len(sub_modules)} sub-modules for better comprehension.",
+            "original_module": module.module_title,
+            "adapted_modules": sub_modules,
+        }
+
+    async def _shorten_module(
+        self, module: ModuleItem, assessment: dict, course_topic: str
+    ) -> dict:
+        """Use LLM to condense a module for an advanced student."""
+        prompt = f"""You are an expert teacher adapting course content for an advanced student.
+
+COURSE TOPIC: {course_topic}
+MODULE: {module.module_title}
+LEARNING OBJECTIVE: {module.learning_objective}
+
+STUDENT ASSESSMENT:
+- Comprehension level: STRONG ({assessment.get('confidence', 0):.0f}% confidence)
+
+The student already understands this material well. Create a condensed version that:
+1. Skips basic introductions
+2. Focuses on advanced applications and edge cases
+3. Adds challenging practice problems
+4. Optionally introduces the next topic early
+
+Return ONLY a valid JSON object (no markdown fences):
+{{"condensed_title": "...", "condensed_objective": "Advanced: ...", "skip_topics": ["topics to skip"], "add_topics": ["advanced topics to add"]}}
+"""
+        response = await generate_text(prompt)
+        condensed = None
+        if response:
+            import re as _re
+            cleaned = _re.sub(r"```(?:json)?\s*", "", response).strip().rstrip("`")
+            try:
+                condensed = json.loads(cleaned)
+            except json.JSONDecodeError:
+                pass
+
+        if not condensed:
+            condensed = {
+                "condensed_title": f"{module.module_title} — Advanced",
+                "condensed_objective": f"Advanced applications of {module.learning_objective}",
+                "skip_topics": ["basic introduction", "foundational concepts"],
+                "add_topics": ["edge cases", "real-world applications"],
+            }
+
+        return {
+            "action": "shorten",
+            "reason": f"Student showed strong understanding ({assessment.get('confidence', 0):.0f}% confidence). Condensing module to advance faster.",
+            "original_module": module.module_title,
+            "adapted_module": condensed,
+        }
+
+    async def _maintain_module(
+        self, module: ModuleItem, assessment: dict, course_topic: str
+    ) -> dict:
+        """Keep module as-is but add a practice exercise."""
+        return {
+            "action": "maintain",
+            "reason": f"Student showed partial understanding ({assessment.get('confidence', 0):.0f}% confidence). Module maintained with additional practice recommended.",
+            "original_module": module.module_title,
+            "suggestion": "Review the material once more and attempt the practice exercises before moving on.",
+        }
+
     # ── private helpers ─────────────────────────
 
     async def _plan_modules(self, request: CurriculumRequest) -> list[dict]:

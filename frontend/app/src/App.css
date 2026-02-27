@@ -1,4 +1,4 @@
-/* App-specific styles */
+/* App-specific styles — Neo Brutalism Light Mode */
 
 /* Smooth transitions for page changes */
 .page-transition {
@@ -10,40 +10,40 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Custom scrollbar for webkit browsers */
+/* Custom scrollbar — Light brutalist */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #050605;
+  background: #FFFFFF;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1F1F1F;
-  border-radius: 4px;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2EE9A8;
+  background: #333333;
 }
 
-/* Selection color */
+/* Selection color — Brutalist yellow */
 ::selection {
-  background: rgba(46, 233, 168, 0.3);
-  color: #F2FFF8;
+  background: #FFDE59;
+  color: #000000;
 }
 
-/* Focus styles */
+/* Focus styles — Brutalist */
 *:focus-visible {
-  outline: 2px solid #2EE9A8;
+  outline: 3px solid #000000;
   outline-offset: 2px;
 }
 
@@ -67,7 +67,7 @@
   aspect-ratio: 16 / 9;
 }
 
-/* Custom range slider styling */
+/* Custom range slider — Brutalist */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -76,19 +76,18 @@ input[type="range"] {
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
-  background: #1F1F1F;
+  background: #000000;
   height: 6px;
-  border-radius: 3px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  background: #2EE9A8;
-  height: 18px;
-  width: 18px;
-  border-radius: 50%;
-  margin-top: -6px;
+  background: #FFDE59;
+  height: 20px;
+  width: 20px;
+  margin-top: -7px;
+  border: 3px solid #000000;
   transition: transform 0.15s ease;
 }
 
@@ -98,7 +97,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* Checkbox styling */
 input[type="checkbox"] {
-  accent-color: #2EE9A8;
+  accent-color: #00BF63;
 }
 
 /* Responsive table */
@@ -110,11 +109,11 @@ input[type="checkbox"] {
   }
 }
 
-/* Loading spinner */
+/* Loading spinner — Brutalist */
 .spinner {
-  border: 3px solid #1F1F1F;
-  border-top-color: #2EE9A8;
-  border-radius: 50%;
+  border: 3px solid #000000;
+  border-top-color: #FFDE59;
+  border-radius: 0;
   animation: spin 1s linear infinite;
 }
 
@@ -124,45 +123,44 @@ input[type="checkbox"] {
   }
 }
 
-/* Glass morphism effect */
+/* Glass morphism — Brutalist light */
 .glass {
-  background: rgba(20, 20, 20, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  border: 3px solid #000000;
 }
 
-/* Hover lift effect */
+/* Hover lift effect — Brutalist */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
 }
 
-/* Gradient text */
+/* Gradient text — Brutalist palette */
 .gradient-text {
-  background: linear-gradient(135deg, #2EE9A8 0%, #00FF41 100%);
+  background: linear-gradient(135deg, #FFDE59 0%, #FF914D 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glow effect */
+/* Glow effect — replaced with hard shadow */
 .glow {
-  box-shadow: 0 0 20px rgba(46, 233, 168, 0.3);
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
 }
 
 .glow-strong {
-  box-shadow: 0 0 40px rgba(46, 233, 168, 0.5);
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
 }
 
-/* Border gradient */
+/* Border gradient — Brutalist */
 .border-gradient {
-  border: 1px solid transparent;
-  background: linear-gradient(#141414, #141414) padding-box,
-              linear-gradient(135deg, #2EE9A8, transparent) border-box;
+  border: 3px solid #000000;
 }
 
 /* Pulse animation for live indicators */
@@ -171,34 +169,37 @@ input[type="checkbox"] {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
 }
 
-/* Card hover border glow */
+/* Card hover border — Brutalist */
 .card-glow:hover {
-  border-color: rgba(46, 233, 168, 0.5);
-  box-shadow: 0 0 20px rgba(46, 233, 168, 0.1);
+  border-color: #000000;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
 }
 
 /* Status indicators */
 .status-online {
-  background-color: #2EE9A8;
+  background-color: #00BF63;
 }
 
 .status-away {
-  background-color: #FF8C00;
+  background-color: #FF914D;
 }
 
 .status-offline {
-  background-color: #6B7280;
+  background-color: #666666;
 }
 
-/* Tooltip styles */
+/* Tooltip styles — Brutalist */
 .tooltip {
   position: relative;
 }
@@ -209,12 +210,12 @@ input[type="checkbox"] {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  padding: 4px 8px;
-  background: #141414;
-  border: 1px solid #1F1F1F;
-  border-radius: 4px;
+  padding: 6px 12px;
+  background: #000000;
+  border: 3px solid #000000;
   font-size: 12px;
-  color: #A7B4AD;
+  font-weight: 700;
+  color: #FFFFFF;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
