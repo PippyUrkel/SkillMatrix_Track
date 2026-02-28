@@ -59,6 +59,7 @@ interface DashboardStore {
   toggleChat: () => void;
   setChatOpen: (open: boolean) => void;
   toggleSidebar: () => void;
+  deleteCourse: (courseId: string) => Promise<boolean>;
 }
 
 export const useDashboardStore = create<DashboardStore>((set, get) => ({
@@ -488,4 +489,18 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   setChatOpen: (open) => set({ isChatOpen: open, ...(open ? { isSidebarCollapsed: true } : {}) }),
 
   toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
+
+  deleteCourse: async (courseId) => {
+    try {
+      await api.delete(`/api/curriculum/saved/${courseId}`);
+      set((state) => ({
+        courses: state.courses.filter((c) => c.id !== courseId),
+        activeCourse: state.activeCourse?.id === courseId ? null : state.activeCourse,
+      }));
+      return true;
+    } catch (err) {
+      console.error('Failed to delete course:', err);
+      return false;
+    }
+  },
 }));

@@ -10,6 +10,7 @@ import {
   Settings,
   Menu,
   ChevronLeft,
+  HelpCircle,
 } from 'lucide-react';
 import { useDashboardStore } from '@/stores';
 
@@ -24,7 +25,8 @@ const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard' },
   { id: 'skillgap', label: 'Skill Gap', icon: Zap, path: '/dashboard/skill-gap' },
   { id: 'learning', label: 'My Course', icon: PlayCircle, path: '/dashboard/learning' },
-  { id: 'jobs', label: 'Jobs', icon: Briefcase, path: '/dashboard/jobs' },
+  { id: 'quizzes', label: 'Practice Quizzes', icon: HelpCircle, path: '/dashboard/quizzes' },
+  { id: 'jobs', label: 'Tech Jobs', icon: Briefcase, path: '/dashboard/jobs' },
   { id: 'community', label: 'Community', icon: Users, path: '/dashboard/community' },
   { id: 'progress', label: 'Progress', icon: BarChart3, path: '/dashboard/progress' },
 ];

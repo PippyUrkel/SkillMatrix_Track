@@ -18,10 +18,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
   const {
     currentStep,
     setCurrentStep,
-    githubConnected,
     selectedPath,
     assessmentComplete,
-    analysisResult,
     riasecScores,
     saveProfileToBackend,
   } = useOnboardingStore();
@@ -33,11 +31,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1:
-        // Must have analyzed GitHub or uploaded resume
+      case 1: {
+        const { targetRole, githubConnected, analysisResult } = useOnboardingStore.getState();
+        const isCodingRole = /developer|engineer|programmer|coder|software|frontend|backend|fullstack|devops|data scientist/i.test(targetRole);
+
+        // If they provided a resume, we might have an analysis result already.
+        // But if it's a coding role, we strictly demand githubConnected.
+        if (isCodingRole) {
+          return githubConnected;
+        }
+
+        // If not a coding role, any analysis (resume or github) is fine
         return githubConnected || analysisResult !== null;
-      case 2:
-        // Must have completed RIASEC questionnaire
+      }
+      case 2: // Must have completed RIASEC questionnaire
         return riasecScores !== null;
       case 3:
         return selectedPath !== '';

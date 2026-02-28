@@ -22,6 +22,8 @@ interface OnboardingStore extends OnboardingState {
   isLoadingAnalysis: boolean;
   analysisError: string | null;
   analysisResult: SkillGapReport | null;
+  targetRole: string;
+  setTargetRole: (role: string) => void;
   githubUsername: string;
   setGithubUsername: (username: string) => void;
   setCurrentStep: (step: number) => void;
@@ -60,6 +62,8 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
   isLoadingAnalysis: false,
   analysisError: null,
   analysisResult: null,
+  targetRole: 'Software Developer',
+  setTargetRole: (role) => set({ targetRole: role }),
   githubUsername: '',
 
   setGithubUsername: (username) => set({ githubUsername: username }),

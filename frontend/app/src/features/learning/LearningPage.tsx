@@ -32,100 +32,248 @@ import {
   ExternalLink,
   Star,
   DollarSign,
+  Trash2,
+  AlertTriangle,
+  Brain,
 } from 'lucide-react';
 import { AIHelper } from '@/features/aihelper';
-import confetti from 'canvas-confetti';
+import { QuizGenerator } from '@/features/quiz';
+import { CertificateModal } from '@/features/certificates';
+import { LinkedInPostGenerator } from '@/features/linkedin';
 
 interface LearningPageProps {
   onNavigate: (path: string) => void;
 }
+
+// ─── Delete Confirmation Modal (double verification) ──────────────────────────
+const DeleteConfirmModal: React.FC<{
+  courseName: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}> = ({ courseName, onConfirm, onCancel, isDeleting }) => {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [typed, setTyped] = useState('');
+
+  const shortName = courseName.length > 30 ? courseName.slice(0, 27) + '…' : courseName;
+  const isMatch = typed.trim().toLowerCase() === 'delete';
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div
+        className="bg-white border-[4px] border-black w-full max-w-md p-6"
+        style={{ boxShadow: '6px 6px 0 #000' }}
+      >
+        {step === 1 ? (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className="w-10 h-10 bg-red-400 border-[2.5px] border-black flex items-center justify-center"
+                style={{ boxShadow: '2px 2px 0 #000' }}
+              >
+                <Trash2 className="w-5 h-5 text-black" />
+              </div>
+              <h3 className="text-lg font-black uppercase tracking-wider">Delete Course</h3>
+            </div>
+            <p className="text-sm font-medium text-black/70 mb-2">
+              You are about to permanently delete:
+            </p>
+            <div
+              className="bg-red-50 border-[2.5px] border-black p-3 mb-4"
+              style={{ boxShadow: '2px 2px 0 #000' }}
+            >
+              <p className="font-black text-sm text-black">{shortName}</p>
+            </div>
+            <p className="text-xs font-medium text-black/50 mb-6">
+              All progress, notes, and data for this course will be lost forever. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={onCancel}
+                className="flex-1 px-4 py-3 bg-white border-[3px] border-black font-black text-xs uppercase tracking-wider hover:bg-gray-100 transition-colors"
+                style={{ boxShadow: '3px 3px 0 #000' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setStep(2)}
+                className="flex-1 px-4 py-3 bg-red-400 text-black border-[3px] border-black font-black text-xs uppercase tracking-wider hover:bg-red-500 transition-colors"
+                style={{ boxShadow: '3px 3px 0 #000' }}
+              >
+                I Understand, Continue →
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className="w-10 h-10 bg-red-500 border-[2.5px] border-black flex items-center justify-center"
+                style={{ boxShadow: '2px 2px 0 #000' }}
+              >
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-black uppercase tracking-wider">Final Confirmation</h3>
+            </div>
+            <p className="text-sm font-medium text-black/70 mb-4">
+              Type <span className="font-black bg-brutal-yellow px-1.5 py-0.5 border border-black">DELETE</span> below to confirm:
+            </p>
+            <input
+              type="text"
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              placeholder="Type DELETE to confirm"
+              className="w-full bg-white border-[2.5px] border-black px-4 py-3 text-sm font-bold placeholder:text-black/30 focus:outline-none mb-4"
+              style={{ boxShadow: '3px 3px 0 #000' }}
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && isMatch && onConfirm()}
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={onCancel}
+                className="flex-1 px-4 py-3 bg-white border-[3px] border-black font-black text-xs uppercase tracking-wider hover:bg-gray-100 transition-colors"
+                style={{ boxShadow: '3px 3px 0 #000' }}
+              >
+                ← Go Back
+              </button>
+              <button
+                onClick={onConfirm}
+                disabled={!isMatch || isDeleting}
+                className="flex-1 px-4 py-3 bg-red-500 text-white border-[3px] border-black font-black text-xs uppercase tracking-wider hover:bg-red-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ boxShadow: '3px 3px 0 #000' }}
+              >
+                {isDeleting ? 'Deleting…' : 'Delete Forever'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // ─── Course Library (card grid) ───────────────────────────────────────────────
 const CourseLibrary: React.FC<{
   courses: any[];
   onSelectCourse: (id: string) => void;
   onGenerate: () => void;
+  onDeleteCourse: (courseId: string) => Promise<boolean>;
   isGenerating: boolean;
   isLoading: boolean;
-}> = ({ courses, onSelectCourse, onGenerate, isGenerating, isLoading }) => (
-  <div className="space-y-6">
-    {/* Header */}
-    <div className="flex items-center justify-between">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">My Courses</h2>
-        <p className="text-slate-500 text-sm mt-0.5">{courses.length} course{courses.length !== 1 ? 's' : ''} in your library</p>
-      </div>
-      <MatrixButton onClick={onGenerate} disabled={isGenerating}>
-        <Plus className="w-4 h-4 mr-2" />
-        {isGenerating ? 'Generating…' : 'New Course'}
-      </MatrixButton>
-    </div>
+}> = ({ courses, onSelectCourse, onGenerate, onDeleteCourse, isGenerating, isLoading }) => {
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-    {/* Cards grid */}
-    {courses.length > 0 ? (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {courses.map((course) => {
-          const totalLessons = course.modules?.reduce((s: number, m: any) => s + m.lessons.length, 0) ?? 0;
-          const doneLessons = course.modules?.reduce((s: number, m: any) => s + m.lessons.filter((l: any) => l.completed).length, 0) ?? 0;
-          return (
-            <MatrixCard
-              key={course.id}
-              className="group cursor-pointer hover:border-emerald-300 hover:shadow-lg transition-all duration-200 overflow-hidden p-0"
-              onClick={() => onSelectCourse(course.id)}
-            >
-              {/* Thumbnail */}
-              <div className="relative h-36 overflow-hidden">
-                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                {course.status === 'completed' && (
-                  <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-none flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" /> Done
-                  </div>
-                )}
-                {isLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                  </div>
-                )}
-              </div>
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    await onDeleteCourse(deleteTarget.id);
+    setIsDeleting(false);
+    setDeleteTarget(null);
+  };
 
-              {/* Content */}
-              <div className="p-4">
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {course.skills.slice(0, 2).map((s: string) => (
-                    <MatrixBadge key={s} variant="accent" size="sm">{s}</MatrixBadge>
-                  ))}
-                </div>
-                <h3 className="font-semibold text-slate-900 leading-snug mb-1 line-clamp-2">{course.title}</h3>
-                <div className="flex items-center gap-3 text-slate-400 text-xs mb-3">
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{course.duration}</span>
-                  <span>{totalLessons} lessons</span>
-                </div>
-                <MatrixProgress value={course.progress} showLabel size="sm" />
-                <MatrixButton variant="secondary" size="sm" className="w-full mt-3">
-                  {course.progress === 0 ? 'Start' : course.progress === 100 ? 'Review' : 'Continue'}
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </MatrixButton>
-              </div>
-            </MatrixCard>
-          );
-        })}
-      </div>
-    ) : (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="w-20 h-20 bg-brutal-yellow border-2 border-black rounded-none flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <GraduationCap className="w-10 h-10 text-black" />
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">My Courses</h2>
+          <p className="text-slate-500 text-sm mt-0.5">{courses.length} course{courses.length !== 1 ? 's' : ''} in your library</p>
         </div>
-        <h3 className="text-xl font-bold text-slate-900 mb-2">No courses yet</h3>
-        <p className="text-slate-500 mb-6 max-w-sm">Generate your first AI-curated learning path tailored to your skill gaps.</p>
         <MatrixButton onClick={onGenerate} disabled={isGenerating}>
-          <Sparkles className="w-4 h-4 mr-2" />
-          {isGenerating ? 'Generating…' : 'Generate My First Course'}
+          <Plus className="w-4 h-4 mr-2" />
+          {isGenerating ? 'Generating…' : 'New Course'}
         </MatrixButton>
       </div>
-    )}
-  </div>
-);
+
+      {/* Cards grid */}
+      {courses.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {courses.map((course) => {
+            const totalLessons = course.modules?.reduce((s: number, m: any) => s + m.lessons.length, 0) ?? 0;
+            const doneLessons = course.modules?.reduce((s: number, m: any) => s + m.lessons.filter((l: any) => l.completed).length, 0) ?? 0;
+            return (
+              <MatrixCard
+                key={course.id}
+                className="group cursor-pointer hover:border-emerald-300 hover:shadow-lg transition-all duration-200 overflow-hidden p-0 relative"
+                onClick={() => onSelectCourse(course.id)}
+              >
+                {/* Thumbnail */}
+                <div className="relative h-36 overflow-hidden">
+                  <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  {course.status === 'completed' && (
+                    <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-none flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> Done
+                    </div>
+                  )}
+                  {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    </div>
+                  )}
+                  {/* Delete button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTarget({ id: course.id, title: course.title });
+                    }}
+                    className="absolute top-3 left-3 w-8 h-8 bg-white/90 border-2 border-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-400 hover:text-white"
+                    style={{ boxShadow: '2px 2px 0 #000' }}
+                    title="Delete course"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="p-4">
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {course.skills.slice(0, 2).map((s: string) => (
+                      <MatrixBadge key={s} variant="accent" size="sm">{s}</MatrixBadge>
+                    ))}
+                  </div>
+                  <h3 className="font-semibold text-slate-900 leading-snug mb-1 line-clamp-2">{course.title}</h3>
+                  <div className="flex items-center gap-3 text-slate-400 text-xs mb-3">
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{course.duration}</span>
+                    <span>{totalLessons} lessons</span>
+                  </div>
+                  <MatrixProgress value={course.progress} showLabel size="sm" />
+                  <MatrixButton variant="secondary" size="sm" className="w-full mt-3">
+                    {course.progress === 0 ? 'Start' : course.progress === 100 ? 'Review' : 'Continue'}
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </MatrixButton>
+                </div>
+              </MatrixCard>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-20 h-20 bg-brutal-yellow border-2 border-black rounded-none flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <GraduationCap className="w-10 h-10 text-black" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">No courses yet</h3>
+          <p className="text-slate-500 mb-6 max-w-sm">Generate your first AI-curated learning path tailored to your skill gaps.</p>
+          <MatrixButton onClick={onGenerate} disabled={isGenerating}>
+            <Sparkles className="w-4 h-4 mr-2" />
+            {isGenerating ? 'Generating…' : 'Generate My First Course'}
+          </MatrixButton>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <DeleteConfirmModal
+          courseName={deleteTarget.title}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+          isDeleting={isDeleting}
+        />
+      )}
+    </div>
+  );
+};
 
 // ─── Generate Course Modal ─────────────────────────────────────────────────────
 const GenerateModal: React.FC<{
@@ -316,6 +464,7 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
     generateCurriculum,
     isLoadingCurriculum,
     setActiveVideoUrl,
+    deleteCourse,
   } = useDashboardStore();
 
   const { addXP, user } = useUserStore();
@@ -337,6 +486,9 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
   const [showStreakToast, setShowStreakToast] = useState(false);
   const [selectedLessonUrl, setSelectedLessonUrl] = useState<string | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const [showQuizModal, setShowQuizModal] = useState<string | null>(null);
+  const [showCertModal, setShowCertModal] = useState<string | null>(null);
+  const [showLinkedInModal, setShowLinkedInModal] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLDivElement>(null);
   const prevSidebarState = useRef(isSidebarCollapsed);
@@ -459,7 +611,7 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
     if (!activeCourse) return;
     completeCourse(activeCourse.id);
     addXP(150);
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#2EE9A8', '#00CC33', '#F2FFF8'] });
+    setShowCertModal(activeCourse.id);
   };
 
   const toggleModule = (id: string) => setExpandedModules((p) => ({ ...p, [id]: !p[id] }));
@@ -511,6 +663,7 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
             courses={courses}
             onSelectCourse={handleSelectCourse}
             onGenerate={() => setShowGenerateModal(true)}
+            onDeleteCourse={deleteCourse}
             isGenerating={isLoadingCurriculum}
             isLoading={!!loadingCourseId}
           />
@@ -666,6 +819,23 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
                   }) : (
                     <div className="text-center py-12"><p className="text-slate-400">No checkpoints for this course yet.</p></div>
                   )}
+
+                  <div className="border-t-[3px] border-black pt-6 mt-6">
+                    <div className="bg-brutal-blue/10 border-[3px] border-black p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-white border-2 border-black flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_#000]">
+                          <Brain className="w-6 h-6 text-black" />
+                        </div>
+                        <div>
+                          <h4 className="font-black text-lg uppercase tracking-wider mb-1">Knowledge Check</h4>
+                          <p className="text-sm font-medium text-black/70 mb-4">Want more practice? Generate an AI-powered quiz on {currentCourse.title} topics now.</p>
+                          <MatrixButton onClick={() => setShowQuizModal(currentCourse.title)}>
+                            Take Practice Quiz
+                          </MatrixButton>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -838,7 +1008,36 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
         </div>
       )}
 
-      <StreakToast streak={user?.streak || 1} visible={showStreakToast} onDismiss={() => setShowStreakToast(false)} />
+      {showStreakToast && (
+        <StreakToast streak={user?.streak || 1} visible={showStreakToast} onDismiss={() => setShowStreakToast(false)} />
+      )}
+
+      {showQuizModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <QuizGenerator topic={showQuizModal} onClose={() => setShowQuizModal(null)} />
+          </div>
+        </div>
+      )}
+
+      {showCertModal && activeCourse && (
+        <CertificateModal
+          courseId={showCertModal}
+          courseName={activeCourse.title}
+          onClose={() => {
+            setShowCertModal(null);
+            setShowLinkedInModal(activeCourse.title);
+          }}
+        />
+      )}
+
+      {showLinkedInModal && activeCourse && (
+        <LinkedInPostGenerator
+          courseName={showLinkedInModal}
+          skillsGained={activeCourse.modules.flatMap(m => m.topics || [])}
+          onClose={() => setShowLinkedInModal(null)}
+        />
+      )}
     </DashboardLayout>
   );
 };

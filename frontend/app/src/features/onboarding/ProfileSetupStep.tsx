@@ -19,13 +19,13 @@ export const ProfileSetupStep: React.FC = () => {
     isLoadingAnalysis,
     analysisError,
     analysisResult,
-    selectedPath,
+    targetRole,
+    setTargetRole,
   } = useOnboardingStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [localUsername, setLocalUsername] = useState(githubUsername);
   const [resumeAnalyzed, setResumeAnalyzed] = useState(false);
-  const [targetRole, setTargetRole] = useState(selectedPath || 'Software Developer');
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,6 +66,8 @@ export const ProfileSetupStep: React.FC = () => {
     }
   };
 
+  const isCodingRole = /developer|engineer|programmer|coder|software|frontend|backend|fullstack|devops|data scientist/i.test(targetRole);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -90,7 +92,12 @@ export const ProfileSetupStep: React.FC = () => {
 
       {/* GitHub Connection — Primary Input */}
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-3">GitHub Profile</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">
+          GitHub Profile {isCodingRole ? <span className="text-red-500">*Required for Coding Roles</span> : <span className="text-slate-400 font-normal">(Optional)</span>}
+        </label>
+        <p className="text-xs text-slate-500 mb-3">
+          {isCodingRole ? "Since you selected a coding target role, we need to analyze your repos to build an accurate curriculum." : "Add GitHub to get a highly accurately personalized learning path based on your code."}
+        </p>
         {!githubConnected ? (
           <div className="space-y-3">
             <div className="flex gap-3">

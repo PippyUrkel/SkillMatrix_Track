@@ -1,0 +1,1 @@
+export { LinkedInPostGenerator } from './LinkedInPostGenerator';
