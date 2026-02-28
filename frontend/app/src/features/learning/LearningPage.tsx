@@ -35,6 +35,7 @@ import {
   Trash2,
   AlertTriangle,
   Brain,
+  ClipboardCheck,
 } from 'lucide-react';
 import { AIHelper } from '@/features/aihelper';
 import { QuizGenerator } from '@/features/quiz';
@@ -489,6 +490,7 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
   const [showQuizModal, setShowQuizModal] = useState<string | null>(null);
   const [showCertModal, setShowCertModal] = useState<string | null>(null);
   const [showLinkedInModal, setShowLinkedInModal] = useState<string | null>(null);
+  const [assessmentModule, setAssessmentModule] = useState<{ title: string; topic: string } | null>(null);
 
   const videoRef = useRef<HTMLDivElement>(null);
   const prevSidebarState = useRef(isSidebarCollapsed);
@@ -953,6 +955,22 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
                             </div>
                           );
                         })}
+                        {/* Module Assessment Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const videoTitles = module.lessons.map((l) => l.title).join(', ');
+                            const topic = `Assessment on: ${module.title} — covering: ${videoTitles}`;
+                            setAssessmentModule({ title: module.title, topic });
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 pl-11 bg-amber-50/80 hover:bg-amber-100/80 transition-colors cursor-pointer border-t-2 border-amber-200/60 group/assess"
+                        >
+                          <div className="w-5 h-5 rounded-none bg-amber-400 border-2 border-amber-600 flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0_0_rgba(0,0,0,0.2)]">
+                            <ClipboardCheck className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="text-xs font-bold text-amber-800 uppercase tracking-wider group-hover/assess:text-amber-900">Module Assessment</span>
+                          <span className="text-[10px] text-amber-500 ml-auto">10 Qs</span>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1016,6 +1034,28 @@ export const LearningPage: React.FC<LearningPageProps> = ({ onNavigate }) => {
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <QuizGenerator topic={showQuizModal} onClose={() => setShowQuizModal(null)} />
+          </div>
+        </div>
+      )}
+
+      {assessmentModule && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-amber-400 border-2 border-black flex items-center justify-center shadow-[2px_2px_0_0_#000]">
+                  <ClipboardCheck className="w-4 h-4 text-black" />
+                </div>
+                <h3 className="text-sm font-black uppercase tracking-wider text-white">{assessmentModule.title}</h3>
+              </div>
+              <button
+                onClick={() => setAssessmentModule(null)}
+                className="w-8 h-8 bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+            <QuizGenerator topic={assessmentModule.topic} numQuestions={10} onClose={() => setAssessmentModule(null)} />
           </div>
         </div>
       )}

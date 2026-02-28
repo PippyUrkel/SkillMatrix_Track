@@ -17,9 +17,10 @@ interface QuizQuestion {
 interface QuizGeneratorProps {
     topic: string;
     onClose?: () => void;
+    numQuestions?: number;
 }
 
-export const QuizGenerator: React.FC<QuizGeneratorProps> = ({ topic, onClose }) => {
+export const QuizGenerator: React.FC<QuizGeneratorProps> = ({ topic, onClose, numQuestions = 5 }) => {
     const [questions, setQuestions] = useState<QuizQuestion[]>([]);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
@@ -32,7 +33,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({ topic, onClose }) 
             const res = await api.post<{ topic: string, questions: QuizQuestion[] }>('/api/quiz/generate', {
                 topic,
                 difficulty: 'medium',
-                num_questions: 5
+                num_questions: numQuestions
             });
             setQuestions(res.questions);
             setCurrentIdx(0);
@@ -89,7 +90,7 @@ export const QuizGenerator: React.FC<QuizGeneratorProps> = ({ topic, onClose }) 
                 </div>
                 <h3 className="text-xl font-black uppercase tracking-widest text-black mb-2">Knowledge Check</h3>
                 <p className="text-sm font-bold text-black/60 mb-6 max-w-sm mx-auto">
-                    Generate a custom 5-question AI quiz to test your understanding of "{topic}".
+                    Generate a custom {numQuestions}-question AI quiz to test your understanding of "{topic}".
                 </p>
                 <MatrixButton onClick={handleGenerate} disabled={isGenerating}>
                     {isGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Brain className="w-4 h-4 mr-2" />}
