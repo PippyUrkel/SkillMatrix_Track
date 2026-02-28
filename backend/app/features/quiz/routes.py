@@ -7,7 +7,7 @@ from ...middleware.auth_middleware import get_current_user
 from ...config import get_settings
 from .schemas import QuizGenerateRequest, QuizGenerateResponse, QuizSubmitRequest, QuizSubmitResponse, QuizQuestion
 
-router = APIRouter(prefix="/quiz", tags=["Quiz Generation"])
+router = APIRouter(prefix="/api/quiz", tags=["Quiz Generation"])
 settings = get_settings()
 
 QUIZ_PROMPT = """You are an expert educational assessment creator. 
