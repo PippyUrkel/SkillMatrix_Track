@@ -2,9 +2,9 @@
  * Extract text from a PDF file using pdfjs-dist.
  */
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Use a CDN for the worker to avoid Vite import errors with pdfjs-dist 5.x
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 export async function extractTextFromPDF(file: File): Promise<string> {
     const buffer = await file.arrayBuffer();

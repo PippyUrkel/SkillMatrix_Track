@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 import os
 import json
+import httpx
 from json_repair import repair_json
-from app.middleware.auth_middleware import get_current_user
-from app.config import get_settings
-from app.utils.llm import generate_text
+from ...middleware.auth_middleware import get_current_user
+from ...config import get_settings
 
-router = APIRouter(prefix="/api/linkedin", tags=["LinkedIn Integration"])
+router = APIRouter(prefix="/linkedin", tags=["LinkedIn Integration"])
 settings = get_settings()
 
 @router.post("/generate")
@@ -35,14 +35,23 @@ async def generate_linkedin_post(request: dict, user_id: str = Depends(get_curre
     """
 
     try:
-        response_text = await generate_text(prompt, temperature=0.7)
-        if not response_text:
-            raise Exception("No response from Ollama")
+        ollama_url = f"{settings.ollama_endpoint.rstrip('/')}/api/generate"
+        payload = {
+            "model": settings.ollama_model,
+            "prompt": prompt,
+            "stream": False
+        }
+        
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(ollama_url, json=payload, timeout=60.0)
+            resp.raise_for_status()
+            response_data = resp.json()
+            raw_response = response_data.get('response', '')
         
         # Parse the output
         try:
-            parsed = json.loads(str(repair_json(response_text)))
-            content = parsed.get("post_content", response_text)
+            parsed = json.loads(str(repair_json(raw_response)))
+            content = parsed.get("post_content", raw_response)
             
             # Clean up potential markdown string artifacts
             if isinstance(content, str) and content.startswith("```json"):
@@ -53,7 +62,7 @@ async def generate_linkedin_post(request: dict, user_id: str = Depends(get_curre
         except json.JSONDecodeError:
             print("Failed to parse JSON for LinkedIn post. Falling back to raw response.")
             # If JSON parsing totally fails, just return the raw string and let the user edit it.
-            return {"post_content": response_text.strip()}
+            return {"post_content": raw_response.strip()}
 
     except Exception as e:
         print(f"Error generating LinkedIn post with Ollama: {e}")

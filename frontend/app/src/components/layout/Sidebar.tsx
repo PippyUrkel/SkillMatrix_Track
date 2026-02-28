@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Home,
@@ -11,8 +11,12 @@ import {
   Menu,
   ChevronLeft,
   HelpCircle,
+  Award,
 } from 'lucide-react';
 import { useDashboardStore } from '@/stores';
+import { useUserStore } from '@/stores/userStore';
+import { AllCertificatesModal } from '@/features/certificates';
+import { CertificateModal as UICertificateModal } from '@/components/ui/CertificateModal';
 
 interface NavItem {
   id: string;
@@ -37,7 +41,12 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onNavigate }) => {
-  const { isSidebarCollapsed, toggleSidebar } = useDashboardStore();
+  const { isSidebarCollapsed, toggleSidebar, courses } = useDashboardStore();
+  const user = useUserStore((state) => state.user);
+
+  const completedCourses = (courses || []).filter(c => c.status === 'completed' || c.progress === 100);
+  const [isAllCertModalOpen, setIsAllCertModalOpen] = useState(false);
+  const [selectedCert, setSelectedCert] = useState<any>(null);
 
   return (
     <aside className={cn(
@@ -102,6 +111,47 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onNavigate }) => {
 
       {/* Bottom Section */}
       <div className="p-4 border-t-4 border-black">
+        {/* Cascading Certificates Preview */}
+        {!isSidebarCollapsed && completedCourses.length > 0 && (
+          <div
+            onClick={() => setIsAllCertModalOpen(true)}
+            className="mb-4 p-3 bg-slate-50 border-2 border-black hover:bg-brutal-yellow transition-colors cursor-pointer group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 relative z-10"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-black uppercase text-black">My Certificates</span>
+              <Award className="w-4 h-4 text-black" strokeWidth={2.5} />
+            </div>
+
+            {/* Cascading visuals */}
+            <div className="relative h-12 w-full mt-2">
+              {completedCourses.slice(0, 3).map((course, idx) => (
+                <div
+                  key={course.id || idx}
+                  className="absolute top-0 w-[85%] h-8 bg-white border-2 border-black flex items-center px-2 transition-all duration-300 group-hover:-translate-y-1"
+                  style={{
+                    left: `${idx * 8}%`,
+                    top: `${idx * 6}px`,
+                    zIndex: 10 - idx,
+                    boxShadow: '1px 1px 0px 0px rgba(0,0,0,1)'
+                  }}
+                >
+                  <span className="text-[9px] font-bold truncate text-black leading-none">{course.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isSidebarCollapsed && completedCourses.length > 0 && (
+          <button
+            onClick={() => setIsAllCertModalOpen(true)}
+            title="My Certificates"
+            className="w-full flex items-center justify-center gap-3 px-0 py-3 text-sm font-bold transition-all duration-150 mb-4 text-black/70 hover:text-black hover:bg-brutal-yellow/30"
+          >
+            <Award className="w-5 h-5" strokeWidth={2} />
+          </button>
+        )}
+
         {/* Settings */}
         <button
           onClick={() => onNavigate('/dashboard/settings')}
@@ -118,6 +168,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeItem, onNavigate }) => {
           {!isSidebarCollapsed && <span className="uppercase tracking-wide text-xs">Settings</span>}
         </button>
       </div>
+
+      {/* Modals outside main layout flow */}
+      <AllCertificatesModal
+        open={isAllCertModalOpen}
+        onClose={() => setIsAllCertModalOpen(false)}
+        onViewCertificate={(course) => setSelectedCert(course)}
+      />
+
+      {selectedCert && (
+        <UICertificateModal
+          open={!!selectedCert}
+          onClose={() => setSelectedCert(null)}
+          courseName={selectedCert.title}
+          userName={user?.fullName || "Student"}
+          completionDate={new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          skills={selectedCert.skills || []}
+        />
+      )}
     </aside>
   );
 };
